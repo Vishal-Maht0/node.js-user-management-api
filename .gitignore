@@ -1,0 +1,5 @@
+.env
+node_modules/
+routing-practice.js
+notes.md
+JWT_notes.md
