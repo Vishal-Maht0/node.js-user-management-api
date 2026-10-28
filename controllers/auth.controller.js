@@ -72,7 +72,9 @@ export const loginUser = async (req, res, next) => {
         // YAHAN JWT AAYEGA 🔥
         const token = jwt.sign(
         { userId: user._id, 
-          role : user.role
+          name : user.name,
+          role : user.role,
+          tokenVersion : user.tokenVersion
         },
         process.env.JWT_SECRET,
         { expiresIn: "1D"}
@@ -114,6 +116,8 @@ export const changePassword = async(req, res, next) =>{
 
         const newPasswordHash = await bcrypt.hash(newPassword, 10)
         user.password = newPasswordHash
+
+        user.tokenVersion = (user.tokenVersion ?? 0) + 1    // this line will add tokenVersion to 1 after changing the password.
         await user.save()
 
         return res.status(200).json({
@@ -127,4 +131,3 @@ export const changePassword = async(req, res, next) =>{
         next(err)
     }
 }
-

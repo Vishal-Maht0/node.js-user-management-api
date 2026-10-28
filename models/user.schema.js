@@ -21,7 +21,13 @@ import mongoose from "mongoose";
         role : {
             type : String,
             default : "user"
+        },
+
+        tokenVersion : {
+           type : Number,
+            default : 0
         }
+
  },{timestamps : true})
 
 

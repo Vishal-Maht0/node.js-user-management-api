@@ -1,15 +1,35 @@
 import jwt from "jsonwebtoken"
 import { AppError } from "../errors/AppError.js";
+import User from "../models/user.model.js";
 
 
-export const authMiddleware = (req, res, next) =>{
+
+export const authMiddleware = async (req, res, next) =>{
     try{
     const authHeader = req.headers.authorization;
+
+    if(!authHeader || !authHeader.startsWith("Bearer ")) {
+        return next(new AppError("Authentication Token is required",401))
+    }
+
     const splitToken = authHeader.split(" ")[1]
 
     const verifyToken = jwt.verify(splitToken, process.env.JWT_SECRET)
 
-    console.log(verifyToken)
+    const user = await User.findById(verifyToken.userId).select("tokenVersion")
+
+    if(!user) {
+        return next(new AppError("User not found", 401))
+    }
+
+    const tokenVersion = verifyToken.tokenVersion ?? 0;
+    const currentVersion = user.tokenVersion ?? 0
+
+    if(tokenVersion !== currentVersion) {
+        return next (new AppError("Invalid or Revoked token",401))
+    }
+
+    // console.log(verifyToken)
     req.user = verifyToken
 
     next()
@@ -34,9 +54,11 @@ export const authMiddleware = (req, res, next) =>{
         //     message : "Authentication Failed"
         // })
 
-        return next(new AppError("Authentication Failed", 401))
+        return next(err)
     }
 }
+
+
 
 
 
