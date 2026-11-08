@@ -1,5 +1,7 @@
-.env
 node_modules/
+.env*
+!.env.example
+
 routing-practice.js
 notes.md
 JWT_notes.md

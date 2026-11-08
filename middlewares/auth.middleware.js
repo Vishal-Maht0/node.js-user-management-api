@@ -14,6 +14,11 @@ export const authMiddleware = async (req, res, next) =>{
 
     const splitToken = authHeader.split(" ")[1]
 
+    if(!splitToken) {
+        return next(new AppError("Authentication Token is required", 401))
+    }
+
+
     const verifyToken = jwt.verify(splitToken, process.env.JWT_SECRET)
 
     const user = await User.findById(verifyToken.userId).select("tokenVersion")
@@ -65,10 +70,6 @@ export const authMiddleware = async (req, res, next) =>{
 export const authorizeAdmin = (req, res, next) =>{
     try{
         if(req.user.role !== "admin"){
-            // return res.status(403).json({
-            //     success: false,
-            //     message : "Access Denied. Admin Only."
-            // })
             return next(new AppError("Access Denied. Admin Only", 403))
         }
         next()

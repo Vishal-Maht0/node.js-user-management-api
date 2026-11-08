@@ -4,28 +4,31 @@ import mongoose from "mongoose";
     name : {
         type : String,
         required : true,
-        // unique : true
+        trim : true
     },
+
     email : {
         type : String,
         required : true,
-        unique : true
+        unique : true,
+        lowercase : true,
+        trim : true
     },
     
-        password : {
-            type : String,
-            required : true,
-            select : false
+    password : {
+        type : String,
+        required : true,
+        select : false
         },
 
-        role : {
-            type : String,
-            default : "user"
+    role : {
+        type : String,
+        default : "user"
         },
 
-        tokenVersion : {
-           type : Number,
-            default : 0
+    tokenVersion : {
+        type : Number,
+        default : 0
         }
 
  },{timestamps : true})

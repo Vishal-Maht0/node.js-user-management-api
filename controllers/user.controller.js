@@ -3,28 +3,13 @@ import User from "../models/user.model.js";
 import { AppError } from "../errors/AppError.js";
 
 
-export const createUser = async(req, res, next) =>{
-    try{
-        const  user = await User.create(req.body)
-
-        return res.status(200).json({
-            success : true,
-            message : "User Created Sucessfully!!",
-            user : user
-        })
-    }
-    catch(err) {
-        console.error(err)
-        next(err)
-    }
-}
 
 
 export const findAllUsers = async (req, res, next) =>{
     try{
         const users =  await User.find()
 
-        console.log("Logged in User : ", req.user)
+        // console.log("Logged in User : ", req.user)
         
         return res.status(200).json({
             success : true,
@@ -91,13 +76,14 @@ export const updateUser = async(req, res, next) =>{
             updateData.email = email
         }
 
-        const user = await User.findByIdAndUpdate(req.params.id, updateData, {returnDocument : "after"})
+        const user = await User.findByIdAndUpdate(req.params.id, updateData, {returnDocument : "after", runValidators : true})
 
         if(!user) {
             return next(new AppError("User not found!", 404))
         }
 
-        console.log("User updated sucessfully")
+        // console.log("User updated sucessfully")
+
         return res.status(200).json({
             success : true,
             message: "User updated sucessfully",
@@ -107,13 +93,18 @@ export const updateUser = async(req, res, next) =>{
 
      catch(err) {
         console.error(err)
+
+        if(err.code === 11000 && (err.keyPattern?.email || err.keyValue?.email)) {
+            return next(new AppError("Email already exists", 409))
+        }
+
         next(err)
     }
 }
 
 
 export const deleteUser = async (req, res, next) =>{
-    console.log("🔥 deleteUser controller executed");
+    // console.log("🔥 deleteUser controller executed");
 
     try{
         if(!mongoose.Types.ObjectId.isValid(req.params.id)) {
